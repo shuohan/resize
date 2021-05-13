@@ -1,3 +1,6 @@
+import math
+
+
 def _calc_old_fov_align_first(old_shape):
     """Assumes the FOV starts from the first and ends at the last point."""
     step_size = 1
@@ -13,7 +16,7 @@ def _calc_new_fov_align_first(new_shape, dxyz):
 
 def _calc_new_shape_align_first(old_shape, dxyz):
     """The largest number of points to make sure new FOV is within the old."""
-    return tuple(np.floor((s - 1) / d) + 1 for s, d in zip(old_shape, dxyz))
+    return tuple(math.floor((s - 1) / d) + 1 for s, d in zip(old_shape, dxyz))
 
 
 def _calc_old_fov_same_fov(old_shape):
@@ -44,6 +47,6 @@ def _calc_new_fov_same_fov(old_fov, new_shape, dxyz):
     return lefts, rights
 
 
-def _calc_new_shape(old_shape, dxyz):
+def _calc_new_shape_same_fov(old_shape, dxyz):
     """Calculates the shape of the interpolated image."""
     return tuple(round(s / d) for s, d in zip(old_shape, dxyz))
