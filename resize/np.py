@@ -35,6 +35,25 @@ def resize(image, dxyz, order=3, same_fov=True):
         numpy.ndarray: The resampled image.
 
     """
+    indices = calc_sampling_coords(shape, same_fov=same_fov)
+    result = map_coordinates(image, indices, mode='nearest', order=order)
+    result = result.reshape(new_shape)
+    return result
+
+
+def calc_sampling_coords(shape, same_fov=True):
+    """Calculates sampling coordinates.
+
+    Args:
+        shape (tuple[int]): The shape of the image to resize.
+        same_fov (bool): Keep the same FOV if possible when ``True``.
+
+    Returns:
+        numpy.ndarray: The M x N indices array. N is the number of points to
+            sample. M is the point dimension (e.g., 1, 2, 3). Each column is
+            the coordinates vector of a point.
+
+    """
     if same_fov:
         old_fov = _calc_old_fov_same_fov(image.shape)
         new_shape = _calc_new_shape_same_fov(image.shape, dxyz)
@@ -45,12 +64,10 @@ def resize(image, dxyz, order=3, same_fov=True):
         new_shape = _calc_new_shape_align_first(image.shape, dxyz)
         new_fov = _calc_new_fov_align_first(new_shape, dxyz)
         indices = _calc_sampling_indices_align_first(new_fov, dxyz)
-    result = map_coordinates(image, indices, mode='nearest', order=order)
-    result = result.reshape(new_shape)
-    return result
+    return indices
 
 
-def _calc_sampling_indices_same_fov(new_fov, dxyz):
+def _calc_sampling_coords_same_fov(new_fov, dxyz):
     indices = [np.arange(l + d/2, r - d/4, d)
                for l, r, d in zip(new_fov[0], new_fov[1], dxyz)]
     grid = np.meshgrid(*indices, indexing='ij')
@@ -58,7 +75,7 @@ def _calc_sampling_indices_same_fov(new_fov, dxyz):
     return np.array(grid)
 
 
-def _calc_sampling_indices_align_first(new_fov, dxyz):
+def _calc_sampling_coords_align_first(new_fov, dxyz):
     indices = [torch.arange(0, f + d/4, d) for f, d in zip(new_fov, dxyz)]
     grid = np.meshgrid(*indices, indexing='ij')
     grid = [g.flatten() for g in grid]
