@@ -15,15 +15,16 @@ class Resize:
           | x | x | x | x | x |
 
     """
-    def __init__(self, image, dxyz, same_fov=True, target_shape=None):
+    def __init__(self, image, dxyz, same_fov=True, target_shape=None,
+                 coords=None):
         self.image = image
         self.dxyz = dxyz
         self.same_fov = same_fov
         self.target_shape = target_shape
 
         self._old_shape = self.image.shape
+        self._coords = coords
         self._result = None
-        self._coords = None
         self._check_shape()
 
     def _check_shape(self):
@@ -32,8 +33,9 @@ class Resize:
 
     def resize(self):
         """Resizes the image."""
-        self._calc_sampling_coords()
-        self._format_coords()
+        if self._coords is None:
+            self._calc_sampling_coords()
+            self._format_coords()
         self._resize()
 
     @property

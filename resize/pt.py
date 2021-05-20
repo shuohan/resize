@@ -4,8 +4,8 @@ import torch.nn.functional as F
 from .abstract import Resize
 
 
-def resize(image, dxyz, same_fov=True, target_shape=None, mode='bicubic',
-           return_coords=False):
+def resize(image, dxyz, same_fov=True, target_shape=None, coords=None,
+           mode='bicubic', return_coords=False):
     """Wrapper function to resize an image using numpy.
 
     See :class:`ResizeNumpy` for more details.
@@ -15,7 +15,7 @@ def resize(image, dxyz, same_fov=True, target_shape=None, mode='bicubic',
 
     """
     resizer = ResizeTorch(image, dxyz, same_fov=same_fov,
-                          target_shape=target_shape, mode=mode)
+                          target_shape=target_shape, coords=coords, mode=mode)
     resizer.resize()
     if return_coords:
         return resizer.result, resizer.coords
@@ -53,9 +53,9 @@ class ResizeTorch(Resize):
 
     """
     def __init__(self, image, dxyz, same_fov=True, target_shape=None,
-                 mode='bicubic'):
+                 coords=None, mode='bicubic'):
         self.mode = mode
-        super().__init__(image, dxyz, same_fov, target_shape)
+        super().__init__(image, dxyz, same_fov, target_shape, coords)
         self._old_shape = self.image.shape[2:]
 
     def _check_shape(self):

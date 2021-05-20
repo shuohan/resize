@@ -7,7 +7,7 @@ from scipy.ndimage import map_coordinates
 from .abstract import Resize
 
 
-def resize(image, dxyz, same_fov=True, target_shape=None, order=3,
+def resize(image, dxyz, same_fov=True, target_shape=None, coords=None, order=3,
            return_coords=False):
     """Wrapper function to resize an image using numpy.
 
@@ -50,9 +50,10 @@ class ResizeNumpy(Resize):
         order (int): B-spline interpolation order.
 
     """
-    def __init__(self, image, dxyz, same_fov=True, target_shape=None, order=3):
+    def __init__(self, image, dxyz, same_fov=True, target_shape=None,
+                 coords=None, order=3):
         self.order = order
-        super().__init__(image, dxyz, same_fov, target_shape)
+        super().__init__(image, dxyz, same_fov, target_shape, coords)
 
     def _check_shape(self):
         super()._check_shape()

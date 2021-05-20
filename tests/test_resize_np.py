@@ -2,6 +2,7 @@
 
 import numpy as np
 from resize.np import resize
+from time import time
 
 
 def test_np():
@@ -12,7 +13,9 @@ def test_np():
     x3 = np.arange(5)[None, None, :]
     x = (x1 + x2 + x3).astype(float)
     dxyz = (1.5, 2, 0.3)
+
     y, coords = resize(x, dxyz, order=1, return_coords=True)
+
     assert y.shape == (4, 4, 17)
     assert np.array_equal(y[:, 0, 0], [0.25, 1.75, 3.25, 4.75])
     assert np.array_equal(y[0, :, 0], [0.25, 2.25, 4.25, 6.25])
@@ -33,6 +36,16 @@ def test_np():
     y1 = resize(x1, (0.7, ), order=1)
     assert y1.shape == (7, )
     assert np.allclose(y1, np.array((0, 0.6, 1.3, 2.0, 2.7, 3.4, 4)))
+
+    x_rand = np.random.rand(256, 256, 256)
+    start_time = time()
+    y_rand1, coords = resize(x_rand, dxyz, order=1, return_coords=True)
+    print(time() - start_time)
+
+    start_time = time()
+    y_rand2 = resize(x_rand, dxyz, order=1, coords=coords)
+    print(time() - start_time)
+    assert np.allclose(y_rand1, y_rand2)
 
     # Align first
 
