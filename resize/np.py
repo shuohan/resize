@@ -7,7 +7,8 @@ from scipy.ndimage import map_coordinates
 from .abstract import Resize
 
 
-def resize(image, dxyz, same_fov=True, order=3, return_coords=False):
+def resize(image, dxyz, same_fov=True, target_shape=None, order=3,
+           return_coords=False):
     """Wrapper function to resize an image using numpy.
 
     See :class:`ResizeNumpy` for more details.
@@ -16,7 +17,8 @@ def resize(image, dxyz, same_fov=True, order=3, return_coords=False):
         return_coords (bool): Return sampling coordinates if ``True``.
 
     """
-    resizer = ResizeNumpy(image, dxyz, same_fov=same_fov, order=order)
+    resizer = ResizeNumpy(image, dxyz, same_fov=same_fov,
+                          target_shape=target_shape, order=order)
     resizer.resize()
     if return_coords:
         return resizer.result, resizer.coords
@@ -44,12 +46,17 @@ class ResizeNumpy(Resize):
         image (numpy.ndarray): The image to resample.
         dxyz (tuple[float]): The sampling steps. Less than 1 for upsampling.
         same_fov (bool): Keep the same FOV if possible when ``True``.
+        target_shape (tuple[int]): The target spatial shape if not ``None``.
         order (int): B-spline interpolation order.
 
     """
-    def __init__(self, image, dxyz, same_fov=True, order=3):
+    def __init__(self, image, dxyz, same_fov=True, target_shape=None, order=3):
         self.order = order
-        super().__init__(image, dxyz, same_fov)
+        super().__init__(image, dxyz, same_fov, target_shape)
+
+    def _check_shape(self):
+        super()._check_shape()
+        assert len(self.image.shape) == len(self.dxyz)
 
     @property
     def coords(self):

@@ -15,14 +15,20 @@ class Resize:
           | x | x | x | x | x |
 
     """
-    def __init__(self, image, dxyz, same_fov=True):
+    def __init__(self, image, dxyz, same_fov=True, target_shape=None):
         self.image = image
         self.dxyz = dxyz
         self.same_fov = same_fov
+        self.target_shape = target_shape
 
         self._old_shape = self.image.shape
         self._result = None
         self._coords = None
+        self._check_shape()
+
+    def _check_shape(self):
+        if self.target_shape is not None:
+            assert len(self.target_shape) == len(self.dxyz)
 
     def resize(self):
         """Resizes the image."""
@@ -43,12 +49,16 @@ class Resize:
     def _calc_sampling_coords(self):
         if self.same_fov:
             self._old_fov = self._calc_old_fov_same_fov()
-            self._new_shape = self._calc_new_shape_same_fov()
+            self._new_shape = self.target_shape
+            if self.target_shape is None:
+                self._new_shape = self._calc_new_shape_same_fov()
             self._new_fov = self._calc_new_fov_same_fov()
             self._coords = self._calc_sampling_coords_same_fov()
         else:
             self._old_fov = self._calc_old_fov_align_first()
-            self._new_shape = self._calc_new_shape_align_first()
+            self._new_shape = self.target_shape
+            if self.target_shape is None:
+                self._new_shape = self._calc_new_shape_align_first()
             self._new_fov = self._calc_new_fov_align_first()
             self._coords = self._calc_sampling_coords_align_first()
 

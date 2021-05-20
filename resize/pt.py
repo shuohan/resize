@@ -4,7 +4,8 @@ import torch.nn.functional as F
 from .abstract import Resize
 
 
-def resize(image, dxyz, same_fov=True, return_coords=False):
+def resize(image, dxyz, same_fov=True, target_shape=None, mode='bicubic',
+           return_coords=False):
     """Wrapper function to resize an image using numpy.
 
     See :class:`ResizeNumpy` for more details.
@@ -13,7 +14,8 @@ def resize(image, dxyz, same_fov=True, return_coords=False):
         return_coords (bool): Return sampling coordinates if ``True``.
 
     """
-    resizer = ResizeTorch(image, dxyz, same_fov=same_fov)
+    resizer = ResizeTorch(image, dxyz, same_fov=same_fov,
+                          target_shape=target_shape, mode=mode)
     resizer.resize()
     if return_coords:
         return resizer.result, resizer.coords
@@ -45,11 +47,20 @@ class ResizeTorch(Resize):
             channels.
         dxyz (tuple[float]): The sampling steps. Less than 1 for upsampling.
         same_fov (bool): Keep the same FOV if possible when ``True``.
+        mode (str): Interpolation mode. See documents for
+            :func:`torch.nn.functional.grid_sample`.
+        target_shape (tuple[int]): The target spatial shape if not ``None``.
 
     """
-    def __init__(self, image, dxyz, same_fov=True):
-        super().__init__(image, dxyz, same_fov)
+    def __init__(self, image, dxyz, same_fov=True, target_shape=None,
+                 mode='bicubic'):
+        self.mode = mode
+        super().__init__(image, dxyz, same_fov, target_shape)
         self._old_shape = self.image.shape[2:]
+
+    def _check_shape(self):
+        super()._check_shape()
+        assert len(self.image.shape) == len(self.dxyz) + 2
 
     @property
     def coords(self):
@@ -84,9 +95,8 @@ class ResizeTorch(Resize):
                    for start, stop in zip(self._old_fov[0], self._old_fov[1])]
         else:
             fov = self._old_fov
-        coords = [torch.tensor(c / f * 2 - 1) for c, f in zip(self._coords, fov)]
-        return coords
+        return [torch.tensor(c / f * 2 - 1) for c, f in zip(self._coords, fov)]
 
     def _resize(self):
-        self._result = F.grid_sample(self.image, self._coords,
+        self._result = F.grid_sample(self.image, self._coords, mode=self.mode,
                                      align_corners=True, padding_mode='border')

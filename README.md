@@ -67,7 +67,7 @@ With Python version 3.7.6 and PyTorch version 1.8.1, we have
 [0.0000, 0.5500, 1.2500, 1.9500, 2.6500, 3.3500, 4.0500, 4.7500]
 ```
 
-Here we have our 0.7 sampling back (ignore the values that are affected by padding).
+Here we have our 0.7 sampling step back (ignore the values that are affected by padding).
 
 ## The shift of the resized image
 
