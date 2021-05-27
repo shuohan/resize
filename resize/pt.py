@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from .abstract import Resize
 
 
-def resize(image, dxyz, same_fov=True, target_shape=None, mode='bicubic',
+def resize(image, dxyz, same_fov=True, target_shape=None, order=3,
            return_coords=False):
     """Wrapper function to resize an image using numpy.
 
@@ -15,7 +15,7 @@ def resize(image, dxyz, same_fov=True, target_shape=None, mode='bicubic',
 
     """
     resizer = ResizeTorch(image, dxyz, same_fov=same_fov,
-                          target_shape=target_shape, mode=mode)
+                          target_shape=target_shape, order=order)
     resizer.resize()
     if return_coords:
         return resizer.result, resizer.coords
@@ -53,10 +53,19 @@ class ResizeTorch(Resize):
 
     """
     def __init__(self, image, dxyz, same_fov=True, target_shape=None,
-                 mode='bicubic'):
-        self.mode = mode
+                 order=3):
+        self.order = order
+        self._mode = self._get_mode(self.order)
         super().__init__(image, dxyz, same_fov, target_shape)
         self._old_shape = self.image.shape[2:]
+
+    def _get_mode(self, order):
+        if order == 3:
+            return 'bicubic'
+        elif order == 1:
+            return 'bilinear'
+        elif order == 0:
+            return 'nearest'
 
     def _check_shape(self):
         super()._check_shape()
@@ -98,5 +107,5 @@ class ResizeTorch(Resize):
         return [torch.tensor(c / f * 2 - 1) for c, f in zip(self._coords, fov)]
 
     def _resize(self):
-        self._result = F.grid_sample(self.image, self._coords, mode=self.mode,
+        self._result = F.grid_sample(self.image, self._coords, mode=self._mode,
                                      align_corners=True, padding_mode='border')
