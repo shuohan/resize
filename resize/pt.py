@@ -1,4 +1,7 @@
 import torch
+"""Resize with correct sampling step implemented with pytorch
+
+"""
 import torch.nn.functional as F
 
 from .abstract import Resize
@@ -6,12 +9,19 @@ from .abstract import Resize
 
 def resize(image, dxyz, same_fov=True, target_shape=None, order=3,
            return_coords=False):
-    """Wrapper function to resize an image using numpy.
+    """Wrapper function to resize an image using pytorch.
 
-    See :class:`ResizeNumpy` for more details.
+    See :class:`ResizeTorch` for more details.
 
     Args:
         return_coords (bool): Return sampling coordinates if ``True``.
+
+    Returns
+    -------
+    result : torch.Tensor
+        The interpolated images.
+    coords (optional) : torch.Tensor
+        The sampling coordinates of these images.
 
     """
     resizer = ResizeTorch(image, dxyz, same_fov=same_fov,
@@ -27,29 +37,46 @@ class ResizeTorch(Resize):
     """Resizes the image with sampling steps dx, dy, and dz in PyTorch.
 
     Same FOV mode:
-        
+
+    .. code-block::
+
         |   x   |   x   |   x   |
         | x | x | x | x | x | x |
 
-    Align first point mode:
-        
+    Aligning first point mode:
+
+    .. code-block::
+
         |   x   |   x   |   x   |
           | x | x | x | x | x |
 
     Note:
-        * Assume "replication" padding in the same FOV mode.
-        * Only support linear interpolation.
-        * Only support 2D and 3D images.
+        * "Replication" padding is used in interpolation.
+        * For images with 3D spatial shape (5D input shape), only linear
+          (``order = 1``) and nearest (``order = 0``) are supported.
+        * For images with 2D spatial shape (4D input shape), cubic
+          (``order = 3``) interpolation is also supported.
+        * Images with 1D spatial shape is not supported.
 
     Args:
-        image (torch.Tensor): The image to resample with shape B x C x
-            spatial_size, the B is the batch size and C is the number of
-            channels.
-        dxyz (tuple[float]): The sampling steps. Less than 1 for upsampling.
-        same_fov (bool): Keep the same FOV if possible when ``True``.
-        mode (str): Interpolation mode. See documents for
-            :func:`torch.nn.functional.grid_sample`.
-        target_shape (tuple[int]): The target spatial shape if not ``None``.
+        image (torch.Tensor): The image to resample with shape ``(B, C,
+            *spatial_size)``; ``B`` is the batch size, and ``C`` is the number
+            of channels.
+        dxyz (tuple[float]): The sampling steps. Less than 1 for upsampling. For
+            example, ``(2.0, 0.8)`` for images with 2D spatial shape (4D input
+            shape) and ``(1.3, 2.1, 0.3)`` for images with 3D spatial shape (5D
+            input shape with batch and channel dimensions).
+        same_fov (bool): Keep the same FOV as possible when ``True``. Otherwise,
+            align the first points along each dimension between the input and
+            resulting images.
+        order (int): Interpolation order. 0: nearest; 1: linear; 2: cubic. See
+            :func:`torch.nn.functional.grid_sample` for more details of
+            the interpolation mode.
+        target_shape (tuple[int]): The target spatial shape if not ``None``. If
+            ``same_fov`` is ``True``, additional sizes are symmetrically padded
+            at/cropped from both sides of each spatial dimension. If
+            ``same_fov`` is ``False``, additional sizes are padded at/cropped
+            from the end of each spatial dimension.
 
     """
     def __init__(self, image, dxyz, same_fov=True, target_shape=None,
@@ -73,13 +100,13 @@ class ResizeTorch(Resize):
 
     @property
     def coords(self):
-        """Returns sampling coordinates.
+        """Returns the sampling coordinates.
 
-        The shape is B x spatial_size x M coordinate array. This array has the
-        same spatial shape with the resuling interpolated image. B is the number
-        of samples in this mini-batch of images, but they share the same
-        sampling indices. M is the number of cooridnates for each point to
-        sample. The spatial size can be 2D or 3D.
+        The shape of the coordinates array is ``(B, *spatial_size, M)`` where
+        ``B`` is the batch size, and ``M`` is 3 for 3D spatial size and 2 for 2D
+        spatial size. The ``spatial_size`` is the same with the resuling
+        interpolated image. All ``B`` images of this batch share the same
+        sampling indices.
 
         """
         return self._coords

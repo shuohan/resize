@@ -1,4 +1,4 @@
-"""Resize with correct sampling step implemented with numpy
+"""Resize with correct sampling step implemented with numpy and scipy
 
 """
 import numpy as np
@@ -16,6 +16,13 @@ def resize(image, dxyz, same_fov=True, target_shape=None, order=3,
     Args:
         return_coords (bool): Return sampling coordinates if ``True``.
 
+    Returns
+    -------
+    result : numpy.ndarray
+        The interpolated image.
+    coords (optional) : numpy.ndarray
+        The sampling coordinates of this image.
+
     """
     resizer = ResizeNumpy(image, dxyz, same_fov=same_fov,
                           target_shape=target_shape, order=order)
@@ -27,27 +34,40 @@ def resize(image, dxyz, same_fov=True, target_shape=None, order=3,
 
 
 class ResizeNumpy(Resize):
-    """Resizes the image with sampling steps dx, dy, and dz.
+    """Resizes the image with sampling steps dx, dy, and dz using Numpy Scipy.
 
     Same FOV mode:
-        
+
+    .. code-block::
+
         |   x   |   x   |   x   |
         | x | x | x | x | x | x |
 
-    Align first point mode:
-        
+    Aligning first point mode:
+
+    .. code-block::
+
         |   x   |   x   |   x   |
           | x | x | x | x | x |
 
     Note:
-        Assume "replication" padding in the same FOV mode.
+        "Replication" padding is used in the interpolation.
 
     Args:
         image (numpy.ndarray): The image to resample.
-        dxyz (tuple[float]): The sampling steps. Less than 1 for upsampling.
-        same_fov (bool): Keep the same FOV if possible when ``True``.
+        dxyz (tuple[float]): The sampling steps. Less than 1 for upsampling. For
+            example, ``(2.0, 0.8)`` for a 2D image and ``(1.3, 2.1, 0.3)`` for
+            a 3D image.
+        same_fov (bool): Keep the same FOV as possible when ``True``. Otherwise,
+            align the first points along each dimension between the input and
+            resulting images.
         target_shape (tuple[int]): The target spatial shape if not ``None``.
         order (int): B-spline interpolation order.
+        target_shape (tuple[int]): The target spatial shape if not ``None``. If
+            ``same_fov`` is ``True``, additional sizes are symmetrically padded
+            at/cropped from both sides of each spatial dimension. If
+            ``same_fov`` is ``False``, additional sizes are padded at/cropped
+            from the end of each spatial dimension.
 
     """
     def __init__(self, image, dxyz, same_fov=True, target_shape=None, order=3):
@@ -62,10 +82,11 @@ class ResizeNumpy(Resize):
     def coords(self):
         """Returns the sampling coordinates.
 
-        The shape is M x N sampling coordinate array. N is the number of points
-        to sample. It is equal to product of the shape of :meth:`result`.
-        M is the point dimension (e.g., 1, 2, 3).  Each column is the
-        coordinates vector of a point.
+        The shape of the coordinates array is ``(M, N)``. ``N`` is the number of
+        points to sample. It is equal to product of the shape of the resulting
+        image :meth:`result`. ``M`` is the dimension of these sampled points
+        (e.g., 1, 2, 3). Each column is the coordinates vector of a point to
+        sample relative to the input image.
 
         """
         return self._coords
