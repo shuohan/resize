@@ -5,12 +5,16 @@ class Resize:
     """Resizes the image with sampling steps dx, dy, and dz.
 
     Same FOV mode:
+
+    .. code-block::
         
         |   x   |   x   |   x   |
         | x | x | x | x | x | x |
 
-    Align first point mode:
+    Aligning first point mode:
         
+    .. code-block::
+
         |   x   |   x   |   x   |
           | x | x | x | x | x |
 
@@ -31,7 +35,7 @@ class Resize:
             assert len(self.target_shape) == len(self.dxyz)
 
     def resize(self):
-        """Resizes the image."""
+        """Call this method to resize the input ``image``."""
         self._calc_sampling_coords()
         self._format_coords()
         self._resize()
