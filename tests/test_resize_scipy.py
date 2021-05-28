@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 import numpy as np
-from resize.np import resize
+from resize.scipy import resize
 
 
-def test_np():
+def test_scipy():
     # Same FOV
 
     x1 = np.arange(6)[:, None, None]
@@ -56,4 +56,4 @@ def test_np():
 
 
 if __name__ == '__main__':
-    test_np()
+    test_scipy()

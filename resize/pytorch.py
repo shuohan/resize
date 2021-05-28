@@ -1,5 +1,5 @@
 import torch
-"""Resize with correct sampling step implemented with pytorch
+"""Resize with correct sampling step implemented with PyTorch
 
 """
 import torch.nn.functional as F
@@ -9,7 +9,7 @@ from .abstract import Resize
 
 def resize(image, dxyz, same_fov=True, target_shape=None, order=3,
            return_coords=False):
-    """Wrapper function to resize an image using pytorch.
+    """Wrapper function to resize an image using PyTorch.
 
     See :class:`ResizeTorch` for more details.
 

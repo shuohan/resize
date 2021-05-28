@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 import torch
-from resize.pt import resize
+from resize.pytorch import resize
 
 
-def test_pt():
+def test_pytorch():
     # Same FOV
     x1 = torch.arange(5).float()[None, None, :, None]
     x2 = torch.arange(7).float()[None, None, None, :]
@@ -72,4 +72,4 @@ def test_pt():
 
 
 if __name__ == '__main__':
-    test_pt()
+    test_pytorch()

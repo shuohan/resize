@@ -1,4 +1,4 @@
-"""Resize with correct sampling step implemented with numpy and scipy
+"""Resize with correct sampling step implemented with SciPy.
 
 """
 import numpy as np
@@ -9,9 +9,9 @@ from .abstract import Resize
 
 def resize(image, dxyz, same_fov=True, target_shape=None, order=3,
            return_coords=False):
-    """Wrapper function to resize an image using numpy.
+    """Wrapper function to resize an image using SciPy.
 
-    See :class:`ResizeNumpy` for more details.
+    See :class:`ResizeScipy` for more details.
 
     Args:
         return_coords (bool): Return sampling coordinates if ``True``.
@@ -24,7 +24,7 @@ def resize(image, dxyz, same_fov=True, target_shape=None, order=3,
         The sampling coordinates of this image.
 
     """
-    resizer = ResizeNumpy(image, dxyz, same_fov=same_fov,
+    resizer = ResizeScipy(image, dxyz, same_fov=same_fov,
                           target_shape=target_shape, order=order)
     resizer.resize()
     if return_coords:
@@ -33,8 +33,8 @@ def resize(image, dxyz, same_fov=True, target_shape=None, order=3,
         return resizer.result
 
 
-class ResizeNumpy(Resize):
-    """Resizes the image with sampling steps dx, dy, and dz using Numpy Scipy.
+class ResizeScipy(Resize):
+    """Resizes the image with sampling steps dx, dy, and dz using SciPy.
 
     Same FOV mode:
 
@@ -61,13 +61,12 @@ class ResizeNumpy(Resize):
         same_fov (bool): Keep the same FOV as possible when ``True``. Otherwise,
             align the first points along each dimension between the input and
             resulting images.
-        target_shape (tuple[int]): The target spatial shape if not ``None``.
-        order (int): B-spline interpolation order.
         target_shape (tuple[int]): The target spatial shape if not ``None``. If
             ``same_fov`` is ``True``, additional sizes are symmetrically padded
             at/cropped from both sides of each spatial dimension. If
             ``same_fov`` is ``False``, additional sizes are padded at/cropped
             from the end of each spatial dimension.
+        order (int): B-spline interpolation order.
 
     """
     def __init__(self, image, dxyz, same_fov=True, target_shape=None, order=3):

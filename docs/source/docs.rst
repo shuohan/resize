@@ -1,19 +1,20 @@
 Documentation
 =============
 
-With Numpy and Scipy
---------------------
+With Scipy
+----------
 
-.. automodule:: resize.np
+.. automodule:: resize.scipy
 .. autofunction:: resize
-.. autoclass:: ResizeNumpy
+.. autoclass:: ResizeScipy
    :members:
+   :inherited-members:
 
 
 With PyTorch
 ------------
 
-.. automodule:: resize.pt
+.. automodule:: resize.pytorch
 .. autofunction:: resize
 .. autoclass:: ResizeTorch
    :members:
