@@ -1,6 +1,6 @@
 # Resize with Correct Sampling Step
 
-![coverage](https://gitlab.com/shan-utils/resize/-/raw/master/tests/coverage_badge.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT) [![coverage](https://gitlab.com/shan-utils/resize/-/raw/master/tests/coverage_badge.svg)]()
 
 | [Documentation](https://shan-utils.gitlab.io/resize) |
 
