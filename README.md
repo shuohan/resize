@@ -1,5 +1,10 @@
 # Resize with Correct Sampling Step
 
+![coverage](https://gitlab.com/shan-utils/resize/-/raw/master/tests/coverage_badge.svg)
+
+| [Documentation](https://shan-utils.gitlab.io/resize) |
+
+
 ## Sampling step when resizing an image
 
 When resizing a digital image with interpolation, we usually need to sample values at non-integer coordinates. The sampling step, i.e., the separation between two adjacent pixels/voxels to be sampled, then determines the digital resolution in the resulting image. When given a target digital resolution, we usually want our image resizing routines respect the corresponding sampling step. For example, when visualizing a zoomed-in medical image, if the digital resolution calculated from the image header mismatches the sampling step, we will see either a squeezed or stretched image.
