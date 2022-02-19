@@ -76,4 +76,18 @@ Here we have our 0.7 sampling step back (ignore the values that are affected by 
 
 ## The shift of the resized image
 
-Even if `torch.nn.functional.interpolate` preserves the sampling step
+Even if `torch.nn.functional.interpolate` preserves the sampling step, the output field of view (FOV) does not align with the original image, as we can see from the above example. It is usually preferred to have the FOVs center around the same position before and after the interpolation to avoid shifting the contents of the image.
+
+## Our implementation
+
+Here we provide an implementation to both preserve the sampling step and to align up the FOV.
+
+```python
+# pip install https://github.com/shuohan/resize.git
+from resize.scipy import resize
+
+sampling_step = 0.7
+x = np.arange(6).astype(float)
+ya = resize(x, (sampling_step, ), order=1)
+print(ya) # [0.  0.4 1.1 1.8 2.5 3.2 3.9 4.6 5. ]
+```
