@@ -114,7 +114,7 @@ class ResizeTorch(Resize):
     def _format_coords(self):
         # Map into the coordinates into [-1, 1] as required by F.grid_sample
         self._coords = self._normalize_coords()
-        self._coords = torch.meshgrid(*self._coords)
+        self._coords = torch.meshgrid(*self._coords, indexing='ij')
         self._coords = [c[None, ..., None] for c in self._coords]
         # Reverse the order of  coordinates for F.grid_sample
         self._coords.reverse()
