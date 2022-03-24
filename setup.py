@@ -7,7 +7,7 @@ with open(os.path.join(dir, 'README.md')) as f:
     long_description = f.read()
 
 setup(name='resize',
-      version='0.1.1',
+      version='0.1.2',
       author='Shuo Han',
       description='Resize an image with correct sampling coordinates.',
       long_description=long_description,
