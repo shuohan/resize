@@ -17,7 +17,10 @@ setup(name='resize',
       license='MIT',
       packages=find_packages(),
       install_requires=['numpy'],
-      extras_require={'scipy': 'scipy', 'pytorch': 'torch>=1.6.0'},
+      extras_require={
+            'scipy': 'scipy',
+            'pytorch': 'torch>=1.10.0'
+      },
       python_requires='>=3.7',
       include_package_data=True,
       classifiers=['Programming Language :: Python :: 3',
