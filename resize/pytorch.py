@@ -123,7 +123,6 @@ class ResizeTorch(Resize):
         # with the images to sample.
         repeats = [self.image.shape[0]] + [1] * (self._coords.ndim - 1)
         self._coords = self._coords.repeat(repeats)
-        self._coords = self._coords.to(self.image)
 
     def _normalize_coords(self):
         if self.same_fov:
@@ -131,7 +130,8 @@ class ResizeTorch(Resize):
                    for start, stop in zip(self._old_fov[0], self._old_fov[1])]
         else:
             fov = self._old_fov
-        return [torch.tensor(c / f * 2 - 1) for c, f in zip(self._coords, fov)]
+        return [torch.tensor(c / f * 2 - 1).to(self.image)
+                for c, f in zip(self._coords, fov)]
 
     def _resize(self):
         self._result = F.grid_sample(self.image, self._coords, mode=self._mode,
